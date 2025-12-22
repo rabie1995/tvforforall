@@ -22,6 +22,14 @@ export async function authenticateAdmin(username: string, password: string): Pro
     const adminUsername = process.env.ADMIN_USERNAME;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
 
+    // TEMP DEBUG LOGGING
+    console.log("AUTH DEBUG:", {
+      usernameProvided: username,
+      adminUsernameSet: !!adminUsername,
+      adminPasswordHashSet: !!adminPasswordHash,
+      usernameMatch: username === adminUsername
+    });
+
     if (!adminUsername || !adminPasswordHash) {
       console.error('[SECURITY] Admin credentials not configured in environment');
       return null;
@@ -33,6 +41,10 @@ export async function authenticateAdmin(username: string, password: string): Pro
     }
 
     const isValid = await bcrypt.compare(password, adminPasswordHash);
+    
+    // TEMP DEBUG LOGGING
+    console.log("PASSWORD COMPARE RESULT:", isValid);
+
     if (!isValid) {
       console.warn('[SECURITY] Failed login attempt (password mismatch)');
       return null;

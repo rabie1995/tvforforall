@@ -9,6 +9,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username, password } = body;
 
+    // TEMP DEBUG LOGGING
+    console.log("LOGIN REQUEST BODY:", { username: username ? "[PRESENT]" : "[MISSING]", password: password ? "[PRESENT]" : "[MISSING]" });
+
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Username and password are required' },
