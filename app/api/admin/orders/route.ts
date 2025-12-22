@@ -1,22 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { verifyAdminToken } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify admin authentication
-    const token = request.cookies.get('admin_token')?.value;
-    const payload = await verifyAdminToken(token || '');
-
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Fetch all orders
     const orders = await prisma.order.findMany({

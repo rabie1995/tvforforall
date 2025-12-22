@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAdminToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
@@ -44,17 +43,6 @@ function convertToCSV(data: any[]): string {
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify admin authentication
-    const token = request.cookies.get('admin_token')?.value;
-    const payload = await verifyAdminToken(token || '');
-
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     // Fetch all client data (no pagination for export)
     const clients = await prisma.clientData.findMany({
       orderBy: { createdAt: 'desc' },

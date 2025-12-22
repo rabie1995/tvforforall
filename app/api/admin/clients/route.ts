@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAdminToken } from '@/lib/auth';
 import { getClientData } from '@/lib/clientData';
 
 export const runtime = 'nodejs';
@@ -7,16 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify admin authentication
-    const token = request.cookies.get('admin_token')?.value;
-    const payload = await verifyAdminToken(token || '');
-
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
