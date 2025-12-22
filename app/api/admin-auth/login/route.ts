@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateAdmin } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
+import { createAdminToken } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,22 +11,30 @@ export async function POST(request: NextRequest) {
     const { username, password } = body;
 
     // TEMP DEBUG LOGGING
-    console.log("LOGIN REQUEST BODY:", { username: username ? "[PRESENT]" : "[MISSING]", password: password ? "[PRESENT]" : "[MISSING]" });
+    console.log("LOGIN BODY:", body);
+    console.log("USERNAME MATCH:", username === process.env.ADMIN_USERNAME);
+    console.log("PASSWORD RESULT:", await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!));
 
     if (!username || !password) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        { error: 'Missing credentials' },
         { status: 400 }
       );
     }
 
-    const token = await authenticateAdmin(username, password);
-    if (!token) {
+    const isValid =
+      username === process.env.ADMIN_USERNAME &&
+      await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!);
+
+    if (!isValid) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
+
+    // SUCCESS - create token and response
+    const token = await createAdminToken(username);
 
     const response = NextResponse.json(
       { success: true, message: 'Login successful' },
