@@ -10,14 +10,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username, password } = body;
 
-    // TEMP DEBUG LOGGING
-    console.log("LOGIN BODY:", body);
-    console.log("ENV USER:", process.env.ADMIN_USERNAME);
-    console.log("ENV HASH EXISTS:", !!process.env.ADMIN_PASSWORD_HASH);
-    console.log("USERNAME MATCH:", username === process.env.ADMIN_USERNAME);
-    const isPasswordValid = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!);
-    console.log("PASSWORD MATCH:", isPasswordValid);
-
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Missing credentials' },
@@ -27,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     const isValid =
       username === process.env.ADMIN_USERNAME &&
-      isPasswordValid;
+      await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!);
 
     if (!isValid) {
       return NextResponse.json(
