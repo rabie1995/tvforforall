@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+
 // NOWPayments webhook secret (should be in env)
 const WEBHOOK_SECRET = process.env.NOWPAYMENTS_WEBHOOK_SECRET || 'test_secret';
 

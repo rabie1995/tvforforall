@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { collectClientData } from '@/lib/clientData';
 import { plans } from '@/lib/plans';
 
+export const dynamic = 'force-dynamic';
+
 const NOWPAYMENTS_LINKS: Record<string, string> = {
   plan_3m: 'https://nowpayments.io/payment/?iid=6334134208&source=button',
   plan_6m: 'https://nowpayments.io/payment/?iid=6035616621&source=button',
