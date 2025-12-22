@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
@@ -9,6 +9,14 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Check if already logged in
+    const isLoggedIn = localStorage.getItem('admin_logged') === 'true';
+    if (isLoggedIn) {
+      router.push('/06620676830610209229');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,19 +49,14 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      {/* Minimal, professional login form */}
-      <div className="w-full max-w-md">
-        {/* No branding - minimal design */}
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-8 shadow-2xl">
-          {/* Title - neutral language */}
-          <h1 className="text-2xl font-bold text-white mb-2 text-center">Access Required</h1>
-          <p className="text-slate-400 text-center text-sm mb-8">
-            Enter your credentials to continue
-          </p>
+      <div className="w-full max-w-md animate-fade-in">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-8 shadow-2xl">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Admin Access</h1>
+            <p className="text-slate-400 text-sm">Enter your credentials to continue</p>
+          </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Field */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 Username
@@ -64,12 +67,11 @@ export default function AdminLoginPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter username"
                 disabled={loading}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 required
               />
             </div>
 
-            {/* Password Field */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 Password
@@ -80,35 +82,28 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
                 disabled={loading}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 required
               />
             </div>
 
-            {/* Error Message */}
             {error && (
-              <div className="bg-red-900/30 border border-red-700 rounded-lg p-3 text-red-200 text-sm">
+              <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 text-red-200 text-sm animate-fade-in">
                 {error}
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/25"
             >
               {loading && (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               )}
-              {loading ? 'Checking credentials...' : 'Continue'}
+              {loading ? 'Authenticating...' : 'Continue'}
             </button>
           </form>
-
-          {/* Minimal footer - no helpful hints */}
-          <p className="text-slate-500 text-xs text-center mt-8">
-            Unauthorized access is prohibited
-          </p>
         </div>
       </div>
     </div>
