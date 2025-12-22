@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
 // NOWPayments webhook secret (should be in env)
 const WEBHOOK_SECRET = process.env.NOWPAYMENTS_WEBHOOK_SECRET || 'test_secret';

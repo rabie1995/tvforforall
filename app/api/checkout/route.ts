@@ -4,6 +4,8 @@ import { collectClientData } from '@/lib/clientData';
 import { plans } from '@/lib/plans';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
 const NOWPAYMENTS_LINKS: Record<string, string> = {
   plan_3m: 'https://nowpayments.io/payment/?iid=6334134208&source=button',
