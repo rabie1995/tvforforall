@@ -12,8 +12,11 @@ export async function POST(request: NextRequest) {
 
     // TEMP DEBUG LOGGING
     console.log("LOGIN BODY:", body);
+    console.log("ENV USER:", process.env.ADMIN_USERNAME);
+    console.log("ENV HASH EXISTS:", !!process.env.ADMIN_PASSWORD_HASH);
     console.log("USERNAME MATCH:", username === process.env.ADMIN_USERNAME);
-    console.log("PASSWORD RESULT:", await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!));
+    const isPasswordValid = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!);
+    console.log("PASSWORD MATCH:", isPasswordValid);
 
     if (!username || !password) {
       return NextResponse.json(
@@ -24,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const isValid =
       username === process.env.ADMIN_USERNAME &&
-      await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH!);
+      isPasswordValid;
 
     if (!isValid) {
       return NextResponse.json(
