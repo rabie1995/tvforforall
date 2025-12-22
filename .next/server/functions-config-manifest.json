@@ -1,0 +1,1 @@
+{"version":1,"functions":{"/api/admin-auth/verify":{},"/api/admin-auth/login":{},"/api/admin-auth/logout":{},"/api/admin/clients":{},"/api/admin/login":{},"/api/admin/orders/[id]/activate":{},"/api/admin/clients/export":{},"/api/admin/orders":{},"/api/orders/[id]/pay":{},"/api/orders":{},"/api/admin/orders/[id]":{},"/api/checkout":{},"/api/webhooks/nowpayments":{}}}
