@@ -16,14 +16,15 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin-auth/login', {
+      const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
-        credentials: 'include',
       });
 
       if (response.ok) {
+        // Set localStorage flag
+        localStorage.setItem('admin_logged', 'true');
         // Redirect to admin panel
         router.push('/06620676830610209229');
       } else {
