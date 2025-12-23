@@ -83,20 +83,27 @@ function CheckoutContent() {
         }),
       });
 
+      console.log('🔵 [CHECKOUT] API Response status:', response.status);
+      
       if (!response.ok) {
         const data = await response.json();
+        console.error('❌ [CHECKOUT] API Error:', data);
         setError(data.error || 'Checkout failed');
         setLoading(false);
         return;
       }
 
       const data = await response.json();
+      console.log('✅ [CHECKOUT] Success response:', data);
+      
       if (!data.paymentLink) {
+        console.error('❌ [CHECKOUT] No paymentLink in response');
         setError('Payment link is unavailable right now. Please retry or contact support.');
         setLoading(false);
         return;
       }
 
+      console.log('🔵 [CHECKOUT] Redirecting to:', data.paymentLink);
       // Redirect to NOWPayments link
       window.location.href = data.paymentLink;
     } catch (err) {

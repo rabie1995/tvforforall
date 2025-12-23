@@ -134,7 +134,10 @@ export async function POST(request: NextRequest) {
       cancel_url: `${SITE_URL}/checkout/cancel?orderId=${order.id}`,
     };
 
-    console.log('Checkout request payload', { ...payload, price_amount: planMeta.priceUsd });
+    console.log('🔵 [CHECKOUT] Creating NOWPayments invoice...');
+    console.log('🔵 [CHECKOUT] Payload:', JSON.stringify(payload, null, 2));
+    console.log('🔵 [CHECKOUT] API Key present:', !!NOWPAYMENTS_API_KEY);
+    console.log('🔵 [CHECKOUT] Endpoint:', INVOICE_ENDPOINT);
 
     const invoiceRes = await fetch(INVOICE_ENDPOINT, {
       method: 'POST',
@@ -146,24 +149,43 @@ export async function POST(request: NextRequest) {
     });
 
     const invoiceBody = await invoiceRes.json().catch(() => ({}));
-    console.log('NOWPayments response', {
-      status: invoiceRes.status,
-      ok: invoiceRes.ok,
-      body: invoiceBody,
-    });
+    
+    console.log('🔵 [CHECKOUT] NOWPayments Response Status:', invoiceRes.status);
+    console.log('🔵 [CHECKOUT] Response OK:', invoiceRes.ok);
+    console.log('🔵 [CHECKOUT] Response Body:', JSON.stringify(invoiceBody, null, 2));
 
-    if (!invoiceRes.ok || !invoiceBody.invoice_url) {
+    if (!invoiceRes.ok) {
+      console.error('❌ [CHECKOUT] NOWPayments API Error:', {
+        status: invoiceRes.status,
+        statusText: invoiceRes.statusText,
+        body: invoiceBody,
+      });
       const message = invoiceBody.message || invoiceBody.error || 'Failed to create invoice';
       return NextResponse.json(
-        { error: message },
+        { error: `Payment provider error: ${message}` },
+        { status: 502 }
+      );
+    }
+
+    if (!invoiceBody.invoice_url) {
+      console.error('❌ [CHECKOUT] No invoice_url in response:', invoiceBody);
+      return NextResponse.json(
+        { error: 'Payment link unavailable - please contact support' },
         { status: 502 }
       );
     }
 
     // Persist NOWPayments invoice id on order
+    const nowpaymentsId = String(invoiceBody.id || invoiceBody.invoice_id || order.id);
     await prisma.order.update({
       where: { id: order.id },
-      data: { nowpaymentsId: String(invoiceBody.id || invoiceBody.invoice_id || order.id) },
+      data: { nowpaymentsId },
+    });
+
+    console.log('✅ [CHECKOUT] Order created successfully:', {
+      orderId: order.id,
+      nowpaymentsId,
+      invoice_url: invoiceBody.invoice_url,
     });
 
     return NextResponse.json(
