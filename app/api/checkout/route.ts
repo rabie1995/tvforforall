@@ -7,7 +7,8 @@ import { prisma } from '@/lib/prisma';
 import { collectClientData } from '@/lib/clientData';
 import { plans } from '@/lib/plans';
 
-// Static NOWPayments invoice links (already created)
+// Static NOWPayments invoice links - NO API KEY NEEDED
+// Direct links to pre-created invoices
 const NOWPAYMENTS_INVOICE_LINKS: Record<string, string> = {
   'plan_3m': 'https://nowpayments.io/payment/?iid=6334134208',
   'plan_6m': 'https://nowpayments.io/payment/?iid=6035616621',
