@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAuthenticated } from '@/lib/authState';
 
@@ -44,7 +44,7 @@ function convertToCSV(data: any[]): string {
   return csvContent;
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   if (!isAuthenticated()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
