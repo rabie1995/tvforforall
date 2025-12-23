@@ -15,9 +15,9 @@ interface AnalyticsData {
   totalOrders: number;
   totalClients: number;
   conversionRate: number;
-  revenueChange: number;
-  ordersChange: number;
-  clientsChange: number;
+  revenueChange?: number;
+  ordersChange?: number;
+  clientsChange?: number;
   monthlyData: {
     month: string;
     revenue: number;
@@ -46,37 +46,12 @@ export default function AnalyticsPage() {
 
   const fetchAnalyticsData = async () => {
     try {
-      // Mock analytics data - in a real app, this would come from your analytics API
-      const mockData: AnalyticsData = {
-        totalRevenue: 15420,
-        totalOrders: 387,
-        totalClients: 234,
-        conversionRate: 68.5,
-        revenueChange: 12.5,
-        ordersChange: 8.3,
-        clientsChange: -2.1,
-        monthlyData: [
-          { month: 'Jan', revenue: 1200, orders: 30, clients: 18 },
-          { month: 'Feb', revenue: 1800, orders: 45, clients: 22 },
-          { month: 'Mar', revenue: 2200, orders: 55, clients: 28 },
-          { month: 'Apr', revenue: 2800, orders: 70, clients: 35 },
-          { month: 'May', revenue: 3200, orders: 80, clients: 42 },
-          { month: 'Jun', revenue: 3800, orders: 95, clients: 48 },
-        ],
-        topProducts: [
-          { name: '12 Months Plan', orders: 145, revenue: 7250 },
-          { name: '6 Months Plan', orders: 123, revenue: 4305 },
-          { name: '3 Months Plan', orders: 119, revenue: 1785 },
-        ],
-        regionalData: [
-          { region: 'Middle East', orders: 156, percentage: 40.3 },
-          { region: 'Europe', orders: 98, percentage: 25.3 },
-          { region: 'North America', orders: 76, percentage: 19.6 },
-          { region: 'Asia', orders: 57, percentage: 14.7 },
-        ],
-      };
-
-      setData(mockData);
+      const res = await fetch('/api/admin/analytics');
+      if (!res.ok) {
+        throw new Error('Failed to load analytics');
+      }
+      const realData = await res.json();
+      setData(realData);
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
     } finally {
@@ -117,14 +92,14 @@ export default function AnalyticsPage() {
               <p className="text-sm font-medium text-text-muted">Total Revenue</p>
               <p className="text-2xl font-bold text-text">${data.totalRevenue.toLocaleString()}</p>
               <div className={`flex items-center mt-2 text-sm ${
-                data.revenueChange > 0 ? 'text-green-500' : 'text-red-500'
+                (data.revenueChange ?? 0) > 0 ? 'text-green-500' : 'text-red-500'
               }`}>
-                {data.revenueChange > 0 ? (
+                {(data.revenueChange ?? 0) > 0 ? (
                   <ArrowUpIcon className="h-4 w-4 mr-1" />
                 ) : (
                   <ArrowDownIcon className="h-4 w-4 mr-1" />
                 )}
-                {Math.abs(data.revenueChange)}% from last month
+                {Math.abs(data.revenueChange ?? 0)}% from last month
               </div>
             </div>
             <div className="p-3 bg-green-500/10 rounded-lg">
@@ -139,14 +114,14 @@ export default function AnalyticsPage() {
               <p className="text-sm font-medium text-text-muted">Total Orders</p>
               <p className="text-2xl font-bold text-text">{data.totalOrders.toLocaleString()}</p>
               <div className={`flex items-center mt-2 text-sm ${
-                data.ordersChange > 0 ? 'text-green-500' : 'text-red-500'
+                (data.ordersChange ?? 0) > 0 ? 'text-green-500' : 'text-red-500'
               }`}>
-                {data.ordersChange > 0 ? (
+                {(data.ordersChange ?? 0) > 0 ? (
                   <ArrowUpIcon className="h-4 w-4 mr-1" />
                 ) : (
                   <ArrowDownIcon className="h-4 w-4 mr-1" />
                 )}
-                {Math.abs(data.ordersChange)}% from last month
+                {Math.abs(data.ordersChange ?? 0)}% from last month
               </div>
             </div>
             <div className="p-3 bg-blue-500/10 rounded-lg">
@@ -161,14 +136,14 @@ export default function AnalyticsPage() {
               <p className="text-sm font-medium text-text-muted">Total Clients</p>
               <p className="text-2xl font-bold text-text">{data.totalClients.toLocaleString()}</p>
               <div className={`flex items-center mt-2 text-sm ${
-                data.clientsChange > 0 ? 'text-green-500' : 'text-red-500'
+                (data.clientsChange ?? 0) > 0 ? 'text-green-500' : 'text-red-500'
               }`}>
-                {data.clientsChange > 0 ? (
+                {(data.clientsChange ?? 0) > 0 ? (
                   <ArrowUpIcon className="h-4 w-4 mr-1" />
                 ) : (
                   <ArrowDownIcon className="h-4 w-4 mr-1" />
                 )}
-                {Math.abs(data.clientsChange)}% from last month
+                {Math.abs(data.clientsChange ?? 0)}% from last month
               </div>
             </div>
             <div className="p-3 bg-purple-500/10 rounded-lg">

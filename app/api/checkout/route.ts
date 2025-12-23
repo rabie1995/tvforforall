@@ -1,17 +1,17 @@
+export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { collectClientData } from '@/lib/clientData';
 import { plans } from '@/lib/plans';
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-export const revalidate = 0;
-
-const NOWPAYMENTS_LINKS: Record<string, string> = {
-  plan_3m: 'https://nowpayments.io/payment/?iid=6334134208&source=button',
-  plan_6m: 'https://nowpayments.io/payment/?iid=6035616621&source=button',
-  plan_12m: 'https://nowpayments.io/payment/?iid=5981936582&source=button',
-};
+const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
+const SITE_URL = process.env.SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+const PAY_CURRENCY = process.env.NOWPAYMENTS_PAY_CURRENCY || 'usdt';
+const PRICE_CURRENCY = process.env.NOWPAYMENTS_PRICE_CURRENCY || 'usd';
+const INVOICE_ENDPOINT = 'https://api.nowpayments.io/v1/invoice';
 
 const legacyPlanMap: Record<string, string> = {
   '3m': 'plan_3m',
@@ -58,10 +58,18 @@ export async function POST(request: NextRequest) {
 
     const planMeta = plans.find(p => p.id === plan);
 
-    if (!NOWPAYMENTS_LINKS[plan] || !planMeta) {
+    if (!planMeta) {
       return NextResponse.json(
         { error: 'Invalid plan selected' },
         { status: 400 }
+      );
+    }
+
+    if (!NOWPAYMENTS_API_KEY) {
+      console.error('Checkout error: NOWPAYMENTS_API_KEY missing');
+      return NextResponse.json(
+        { error: 'Payment provider is not configured. Please try again later.' },
+        { status: 500 }
       );
     }
 
@@ -114,11 +122,54 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Return payment link
+    // Build invoice payload for NOWPayments
+    const payload = {
+      price_amount: planMeta.priceUsd,
+      price_currency: PRICE_CURRENCY,
+      pay_currency: PAY_CURRENCY,
+      order_id: order.id,
+      order_description: `${planMeta.name} subscription`,
+      ipn_callback_url: `${SITE_URL}/api/webhooks/nowpayments`,
+      success_url: `${SITE_URL}/checkout/success?orderId=${order.id}`,
+      cancel_url: `${SITE_URL}/checkout/cancel?orderId=${order.id}`,
+    };
+
+    console.log('Checkout request payload', { ...payload, price_amount: planMeta.priceUsd });
+
+    const invoiceRes = await fetch(INVOICE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': NOWPAYMENTS_API_KEY,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const invoiceBody = await invoiceRes.json().catch(() => ({}));
+    console.log('NOWPayments response', {
+      status: invoiceRes.status,
+      ok: invoiceRes.ok,
+      body: invoiceBody,
+    });
+
+    if (!invoiceRes.ok || !invoiceBody.invoice_url) {
+      const message = invoiceBody.message || invoiceBody.error || 'Failed to create invoice';
+      return NextResponse.json(
+        { error: message },
+        { status: 502 }
+      );
+    }
+
+    // Persist NOWPayments invoice id on order
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { nowpaymentsId: String(invoiceBody.id || invoiceBody.invoice_id || order.id) },
+    });
+
     return NextResponse.json(
       {
         orderId: order.id,
-        paymentLink: NOWPAYMENTS_LINKS[plan],
+        paymentLink: invoiceBody.invoice_url,
       },
       { status: 200 }
     );

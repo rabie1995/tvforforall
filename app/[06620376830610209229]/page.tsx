@@ -54,24 +54,24 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const ordersRes = await fetch('/api/admin/orders');
-      const orders = ordersRes.ok ? await ordersRes.json() : [];
+      const [ordersRes, analyticsRes, trafficRes] = await Promise.all([
+        fetch('/api/admin/orders'),
+        fetch('/api/admin/analytics'),
+        fetch('/api/admin/traffic'),
+      ]);
 
-      // Calculate stats
+      const orders = ordersRes.ok ? await ordersRes.json() : [];
+      const analytics = analyticsRes.ok ? await analyticsRes.json() : null;
+      const traffic = trafficRes.ok ? await trafficRes.json() : { visits: [] };
+
+      const paidOrders = orders.filter((order: any) => order.paymentStatus === 'completed');
       const totalOrders = orders.length;
       const pendingOrders = orders.filter((order: any) => order.paymentStatus === 'pending').length;
       const activeSubscriptions = orders.filter((order: any) => order.deliveryStatus === 'completed').length;
+      const revenue = analytics?.totalRevenue ?? paidOrders.length;
 
-      // Mock revenue calculation (you can implement real revenue tracking)
-      const revenue = totalOrders * 15; // Average $15 per order
-
-      // Mock traffic data (implement real tracking later)
-      const todayTraffic = Math.floor(Math.random() * 500) + 200;
-
-      // Mock changes (implement real change tracking)
-      const ordersChange = Math.floor(Math.random() * 20) - 10;
-      const revenueChange = Math.floor(Math.random() * 30) - 15;
-      const trafficChange = Math.floor(Math.random() * 40) - 20;
+      const todayKey = new Date().toISOString().split('T')[0];
+      const todayTraffic = traffic.visits?.find((v: any) => v.date === todayKey)?.visits || 0;
 
       setStats({
         totalOrders,
@@ -79,18 +79,17 @@ export default function AdminDashboard() {
         pendingOrders,
         revenue,
         todayTraffic,
-        ordersChange,
-        revenueChange,
-        trafficChange,
+        ordersChange: 0,
+        revenueChange: 0,
+        trafficChange: 0,
       });
 
-      // Generate recent activity
       const activities: RecentActivity[] = orders.slice(0, 5).map((order: any) => ({
         id: order.id,
         type: 'order' as const,
         message: `New order from ${order.fullName}`,
         timestamp: new Date(order.createdAt).toLocaleString(),
-        status: order.paymentStatus === 'paid' ? 'success' : 'warning' as const,
+        status: order.paymentStatus === 'completed' ? 'success' : 'warning' as const,
       }));
 
       setRecentActivity(activities);
