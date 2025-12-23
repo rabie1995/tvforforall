@@ -201,6 +201,9 @@ function CheckoutContent() {
           <button
             type="submit"
             disabled={loading}
+            onClick={() => {
+              console.log('clicked: continue to payment');
+            }}
             className="w-full bg-teal text-white font-semibold py-3 rounded-md hover:bg-teal/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? 'Processing...' : 'Continue to Payment'}
