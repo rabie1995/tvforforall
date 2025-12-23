@@ -7,11 +7,12 @@ import { prisma } from '@/lib/prisma';
 import { collectClientData } from '@/lib/clientData';
 import { plans } from '@/lib/plans';
 
-const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
-const SITE_URL = process.env.SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-const PAY_CURRENCY = process.env.NOWPAYMENTS_PAY_CURRENCY || 'usdt';
-const PRICE_CURRENCY = process.env.NOWPAYMENTS_PRICE_CURRENCY || 'usd';
-const INVOICE_ENDPOINT = 'https://api.nowpayments.io/v1/invoice';
+// Static NOWPayments invoice links (already created)
+const NOWPAYMENTS_INVOICE_LINKS: Record<string, string> = {
+  'plan_3m': 'https://nowpayments.io/payment/?iid=6334134208',
+  'plan_6m': 'https://nowpayments.io/payment/?iid=6035616621',
+  'plan_12m': 'https://nowpayments.io/payment/?iid=5981936582',
+};
 
 const legacyPlanMap: Record<string, string> = {
   '3m': 'plan_3m',
@@ -65,10 +66,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!NOWPAYMENTS_API_KEY) {
-      console.error('Checkout error: NOWPAYMENTS_API_KEY missing');
+    // Get static invoice link for this plan
+    const invoiceUrl = NOWPAYMENTS_INVOICE_LINKS[plan];
+    
+    if (!invoiceUrl) {
+      console.error('❌ [CHECKOUT] No invoice link configured for plan:', plan);
       return NextResponse.json(
-        { error: 'Payment provider is not configured. Please try again later.' },
+        { error: 'Payment link not available for this plan' },
         { status: 500 }
       );
     }
@@ -122,76 +126,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Build invoice payload for NOWPayments
-    const payload = {
-      price_amount: planMeta.priceUsd,
-      price_currency: PRICE_CURRENCY,
-      pay_currency: PAY_CURRENCY,
-      order_id: order.id,
-      order_description: `${planMeta.name} subscription`,
-      ipn_callback_url: `${SITE_URL}/api/webhooks/nowpayments`,
-      success_url: `${SITE_URL}/checkout/success?orderId=${order.id}`,
-      cancel_url: `${SITE_URL}/checkout/cancel?orderId=${order.id}`,
-    };
-
-    console.log('🔵 [CHECKOUT] Creating NOWPayments invoice...');
-    console.log('🔵 [CHECKOUT] Payload:', JSON.stringify(payload, null, 2));
-    console.log('🔵 [CHECKOUT] API Key present:', !!NOWPAYMENTS_API_KEY);
-    console.log('🔵 [CHECKOUT] Endpoint:', INVOICE_ENDPOINT);
-
-    const invoiceRes = await fetch(INVOICE_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': NOWPAYMENTS_API_KEY,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const invoiceBody = await invoiceRes.json().catch(() => ({}));
-    
-    console.log('🔵 [CHECKOUT] NOWPayments Response Status:', invoiceRes.status);
-    console.log('🔵 [CHECKOUT] Response OK:', invoiceRes.ok);
-    console.log('🔵 [CHECKOUT] Response Body:', JSON.stringify(invoiceBody, null, 2));
-
-    if (!invoiceRes.ok) {
-      console.error('❌ [CHECKOUT] NOWPayments API Error:', {
-        status: invoiceRes.status,
-        statusText: invoiceRes.statusText,
-        body: invoiceBody,
-      });
-      const message = invoiceBody.message || invoiceBody.error || 'Failed to create invoice';
-      return NextResponse.json(
-        { error: `Payment provider error: ${message}` },
-        { status: 502 }
-      );
-    }
-
-    if (!invoiceBody.invoice_url) {
-      console.error('❌ [CHECKOUT] No invoice_url in response:', invoiceBody);
-      return NextResponse.json(
-        { error: 'Payment link unavailable - please contact support' },
-        { status: 502 }
-      );
-    }
-
-    // Persist NOWPayments invoice id on order
-    const nowpaymentsId = String(invoiceBody.id || invoiceBody.invoice_id || order.id);
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { nowpaymentsId },
-    });
-
-    console.log('✅ [CHECKOUT] Order created successfully:', {
+    console.log('✅ [CHECKOUT] Order created:', {
       orderId: order.id,
-      nowpaymentsId,
-      invoice_url: invoiceBody.invoice_url,
+      plan: plan,
+      email: email,
+      invoiceUrl: invoiceUrl,
     });
 
     return NextResponse.json(
       {
         orderId: order.id,
-        paymentLink: invoiceBody.invoice_url,
+        paymentLink: invoiceUrl,
       },
       { status: 200 }
     );
