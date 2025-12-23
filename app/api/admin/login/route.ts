@@ -1,26 +1,22 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
+import { setAuthenticated, isAuthenticated } from "@/lib/authState";
 
 export async function POST(req: Request) {
   const { username, password } = await req.json();
 
-  if (!username || !password) {
-    return NextResponse.json(
-      { error: "Missing credentials" },
-      { status: 400 }
-    );
+  // Direct comparison with environment variables
+  if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+    setAuthenticated(true);
+    return NextResponse.json({ success: true });
   }
 
-  if (
-    username !== process.env.ADMIN_USERNAME ||
-    password !== process.env.ADMIN_PASSWORD
-  ) {
-    return NextResponse.json(
-      { error: "Invalid credentials" },
-      { status: 401 }
-    );
-  }
+  // Silent failure - no error message
+  return NextResponse.json({ success: false }, { status: 401 });
+}
 
-  return NextResponse.json({ success: true });
+// Check auth status
+export async function GET() {
+  return NextResponse.json({ authenticated: isAuthenticated() });
 }

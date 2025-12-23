@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAuthenticated } from '@/lib/authState';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// No side effects; auth will be checked per request
 
 /**
  * Converts data to CSV format
@@ -12,7 +15,7 @@ function convertToCSV(data: any[]): string {
 
   // Define headers
   const headers = ['ID', 'Full Name', 'Email', 'Region', 'Source', 'Date'];
-  
+
   // Create CSV rows
   const rows = data.map(item => [
     item.id,
@@ -26,7 +29,7 @@ function convertToCSV(data: any[]): string {
   // Combine headers and rows
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => 
+    ...rows.map(row =>
       row.map(cell => {
         // Escape cells that contain commas or quotes
         const cellStr = String(cell);
@@ -41,7 +44,11 @@ function convertToCSV(data: any[]): string {
   return csvContent;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
+  if (!isAuthenticated()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     // Fetch all client data (no pagination for export)
     const clients = await prisma.clientData.findMany({

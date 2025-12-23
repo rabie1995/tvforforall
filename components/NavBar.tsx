@@ -1,26 +1,52 @@
 import Link from 'next/link';
+import { Logo } from './Logo';
 
 export function NavBar() {
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3 font-bold text-navy" style={{ fontSize: '18px', fontFamily: 'var(--font-poppins)' }}>
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-white font-bold text-sm">✦</span>
-          tv for all
+    <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur-lg shadow-lg">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center">
+          <Logo animated={true} />
         </Link>
-        <div className="flex items-center gap-4 text-sm font-medium text-slate-700">
-          <Link href="#plans" className="hidden sm:inline hover:text-navy">
-            Plans
-          </Link>
-          <Link href="#benefits" className="hidden sm:inline hover:text-navy">
-            Benefits
+
+        <nav className="hidden md:flex items-center gap-8">
+          <Link
+            href="#features"
+            className="text-text-muted hover:text-text transition-colors duration-200 font-medium"
+          >
+            Features
           </Link>
           <Link
-            href="/checkout"
-            className="rounded-full bg-teal px-4 py-2 text-white shadow-sm transition hover:bg-tealDark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+            href="#plans"
+            className="text-text-muted hover:text-text transition-colors duration-200 font-medium"
           >
-            Buy now — USDT
+            Plans
           </Link>
+          <Link
+            href="#support"
+            className="text-text-muted hover:text-text transition-colors duration-200 font-medium"
+          >
+            Support
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/checkout"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Get Started
+          </Link>
+
+          {/* Mobile menu button */}
+          <button className="md:hidden p-2 rounded-lg text-text-muted hover:text-text hover:bg-surface-light transition-colors">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
     </header>

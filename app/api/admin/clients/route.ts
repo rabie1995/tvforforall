@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClientData } from '@/lib/clientData';
+import { isAuthenticated } from '@/lib/authState';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  try {
+  if (!isAuthenticated()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');

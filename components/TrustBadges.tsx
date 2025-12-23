@@ -1,26 +1,32 @@
-import { ShieldCheckIcon, SparklesIcon, ChatBubbleLeftIcon, CheckCircleIcon, GlobeAltIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { ShieldCheckIcon, SparklesIcon, ChatBubbleLeftIcon, CheckCircleIcon, GlobeAltIcon, ArrowPathIcon, LockClosedIcon, ServerIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 
 const badges = [
-  { text: 'Secure USDT payments', icon: ShieldCheckIcon },
-  { text: 'No hidden fees', icon: SparklesIcon },
-  { text: '24/7 live support', icon: ChatBubbleLeftIcon },
-  { text: 'Instant activation', icon: CheckCircleIcon },
-  { text: 'Worldwide channels', icon: GlobeAltIcon },
-  { text: 'Money-back friendly', icon: ArrowPathIcon }
+  { text: 'Bank-Level Security', icon: ShieldCheckIcon, color: 'text-green-500' },
+  { text: '99.9% Uptime', icon: ServerIcon, color: 'text-blue-500' },
+  { text: '24/7 Support', icon: ChatBubbleLeftIcon, color: 'text-purple-500' },
+  { text: 'Instant Setup', icon: CheckCircleIcon, color: 'text-green-500' },
+  { text: 'Global Coverage', icon: GlobeAltIcon, color: 'text-blue-500' },
+  { text: '30-Day Guarantee', icon: ArrowPathIcon, color: 'text-orange-500' },
+  { text: 'Encrypted Data', icon: LockClosedIcon, color: 'text-red-500' },
+  { text: '10K+ Users', icon: UserGroupIcon, color: 'text-indigo-500' },
+  { text: 'No Contracts', icon: SparklesIcon, color: 'text-yellow-500' }
 ];
 
 export function TrustBadges() {
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-card sm:grid-cols-3">
-      {badges.map((badge) => {
+    <div className="grid gap-4 rounded-2xl border border-border bg-surface/50 backdrop-blur-sm p-6 shadow-2xl shadow-primary/10 sm:grid-cols-3 lg:grid-cols-3">
+      {badges.map((badge, index) => {
         const Icon = badge.icon;
         return (
           <div
             key={badge.text}
-            className="flex items-center gap-2 rounded-lg bg-surface px-3 py-2 text-xs font-semibold uppercase tracking-wide text-navy hover:bg-teal/5 transition"
+            className="group flex items-center gap-3 rounded-xl bg-background/50 border border-border/50 px-4 py-3 text-sm font-semibold text-text hover:bg-primary/5 hover:border-primary/30 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20 animate-fade-in"
+            style={{ animationDelay: `${index * 100}ms` }}
           >
-            <Icon className="h-4 w-4 flex-shrink-0 text-teal" />
-            <span>{badge.text}</span>
+            <div className={`rounded-lg bg-surface p-2 group-hover:scale-110 transition-transform duration-300`}>
+              <Icon className={`h-5 w-5 ${badge.color}`} />
+            </div>
+            <span className="text-text">{badge.text}</span>
           </div>
         );
       })}

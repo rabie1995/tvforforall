@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAuthenticated } from '@/lib/authState';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!isAuthenticated()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
-
-    // Update order delivery status
     const order = await prisma.order.update({
       where: { id: params.id },
       data: {
@@ -23,8 +25,6 @@ export async function POST(
         deliveryStatus: true,
       },
     });
-
-    // TODO: Send email confirmation to customer with subscription details
 
     return NextResponse.json(
       {
