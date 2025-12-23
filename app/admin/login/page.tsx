@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { LockClosedIcon } from '@heroicons/react/24/solid';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,8 +28,7 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Redirect to admin panel
-      router.push('/admin');
+      console.log('admin login success');
     } catch (err) {
       setError('An error occurred. Please try again.');
       setLoading(false);

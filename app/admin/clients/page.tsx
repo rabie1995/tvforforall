@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   MagnifyingGlassIcon,
   ArrowDownTrayIcon,
@@ -28,7 +27,6 @@ interface ClientsResponse {
 }
 
 export default function ClientsPage() {
-  const router = useRouter();
   const [data, setData] = useState<ClientsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,11 +48,6 @@ export default function ClientsPage() {
       });
 
       const response = await fetch(`/api/admin/clients?${params}`);
-
-      if (response.status === 401) {
-        router.push('/admin/login');
-        return;
-      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch clients');

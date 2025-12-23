@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,10 +19,8 @@ export default function AdminLoginPage() {
       });
 
       if (response.ok) {
-        // Success - redirect to admin panel
-        router.push('/06620376830610209229');
+        console.log('admin login success');
       }
-      // Silent failure - no error message shown
     } catch (err) {
       console.error('Login error:', err);
       // Silent failure - no error message shown

@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import type { Metadata } from 'next';
 import { Inter, Noto_Kufi_Arabic, Poppins } from 'next/font/google';
 import { SiteBackground } from '@/components/SiteBackground';

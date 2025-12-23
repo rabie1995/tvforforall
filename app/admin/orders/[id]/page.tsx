@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 
@@ -24,7 +24,6 @@ const planLabels: Record<string, string> = {
 };
 
 export default function OrderDetailPage() {
-  const router = useRouter();
   const params = useParams();
   const orderId = (params?.id as string) || '';
 
@@ -42,11 +41,6 @@ export default function OrderDetailPage() {
     try {
       setLoading(true);
       const response = await fetch(`/api/admin/orders/${orderId}`);
-
-      if (response.status === 401) {
-        router.push('/admin/login');
-        return;
-      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch order');

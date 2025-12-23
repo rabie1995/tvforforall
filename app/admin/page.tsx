@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   MagnifyingGlassIcon,
   ChevronRightIcon,
@@ -34,7 +33,6 @@ const statusColors: Record<string, string> = {
 };
 
 export default function AdminPage() {
-  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,10 +46,6 @@ export default function AdminPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/admin/orders');
-
-      if (response.status === 401) {
-        return;
-      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
@@ -70,7 +64,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
+    console.log('logout called');
   };
 
   const filteredOrders = orders.filter(

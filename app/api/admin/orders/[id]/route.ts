@@ -1,9 +1,9 @@
+export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAuthenticated } from '@/lib/authState';
-
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
 
 export async function GET(
   _request: NextRequest,
